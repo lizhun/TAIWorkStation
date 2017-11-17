@@ -20,7 +20,6 @@ object Form1: TForm1
     Height = 25
     Caption = 'btn1'
     TabOrder = 0
-    OnClick = btn1Click
   end
   object btn2: TButton
     Left = 72
@@ -29,7 +28,6 @@ object Form1: TForm1
     Height = 25
     Caption = 'btn2'
     TabOrder = 1
-    OnClick = btn2Click
   end
   object mmo1: TMemo
     Left = 216

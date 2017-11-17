@@ -19,10 +19,6 @@ type
     btn3: TButton;
     con1: TADOConnection;
     btn4: TButton;
-    procedure btn1Click(Sender: TObject);
-    function ImageToBuffer(AImgFile: string): string;
-    procedure BufferToImage(ABuffer: string; ASaveName: string);
-    procedure btn2Click(Sender: TObject);
     procedure btn3Click(Sender: TObject);
     procedure btn4Click(Sender: TObject);
   private
@@ -37,89 +33,6 @@ var
 implementation
 
 {$R *.dfm}
-
-procedure TForm1.btn1Click(Sender: TObject);
-var
-  datalist: TStringList;
-  result: string;
-  code: TIdDecoderMIME;
-  postForm: TIdMultiPartFormDataStream;
-begin
-  datalist := TStringList.Create;
-  datalist.Add('pid=' + IntToStr(555));
-  datalist.Add('type=asdfasdf');
-  postForm := TIdMultiPartFormDataStream.Create;
-  postForm.AddFormField('pid', '666');
-  postForm.AddFile('filefieldname1', 'd:\110.png', 'text/plain');
-  postForm.AddFile('filefieldname2', 'd:\110.png', 'text/plain');
-  result := idhtp1.Post('http://localhost:9999/Handler1.ashx', postForm);
-  mmo1.Text := result;
-end;
-
-function TForm1.ImageToBuffer(AImgFile: string): string;
-var
-  MyFileStream: TFileStream;
-  EncoderMIME: TIdEncoderMIME;
-begin
-  result := '';
-  if FileExists(AImgFile) then
-  begin
-    EncoderMIME := TIdEncoderMIME.Create(nil);
-    try
-      MyFileStream := TFileStream.Create(AImgFile, fmOpenRead);
-      try
-        SetLength(result, MyFileStream.Size);
-        MyFileStream.Read(result[1], MyFileStream.Size);
-        result := EncoderMIME.EncodeString(result);
-      finally
-        MyFileStream.Free;
-      end;
-    finally
-      EncoderMIME.Free;
-    end;
-  end;
-end;
-
-procedure TForm1.BufferToImage(ABuffer: string; ASaveName: string);
-var
-  MyFileStream: TMemoryStream;
-  DecoderMIME: TIdDecoderMIME;
-begin
-  if FileExists(ASaveName) then
-    DeleteFile(ASaveName);
-  try
-    if Trim(ABuffer) = '' then
-      Exit;
-    DecoderMIME := TIdDecoderMIME.Create(nil);
-    try
-      MyFileStream := TMemoryStream.Create;
-      try
-        ABuffer := DecoderMIME.DecodeToString(ABuffer);
-        MyFileStream.Write(ABuffer[1], length(ABuffer));
-        MyFileStream.SaveToFile(ASaveName);
-      finally
-        MyFileStream.Free;
-      end;
-    finally
-      DecoderMIME.Free;
-    end;
-  except
-    on E: Exception do
-    begin
-      ASaveName := '';
-    end;
-  end;
-end;
-
-procedure TForm1.btn2Click(Sender: TObject);
-var
-  aaa: TIdMultiPartFormDataStream;
-begin
-  aaa := TIdMultiPartFormDataStream.Create;
-
-  mmo1.Text := ImageToBuffer('d:\110.png');
-
-end;
 
 procedure TForm1.btn3Click(Sender: TObject);
 var
@@ -140,10 +53,9 @@ end;
 procedure TForm1.btn4Click(Sender: TObject);
 var
   helper: TTencentAIManager;
-  data: TTencentAIUploadData;
+
   imgids:TArrayImageId;
 begin
-  data := TTencentAIUploadData.Create;
   helper := TTencentAIManager.Create;
   helper.imgLocalRootPath := '';
   helper.imgServerRootPath := '';
@@ -151,7 +63,6 @@ begin
   imgids[0]:='1';
   con1.ConnectionString:='Provider=SQLNCLI11.1;User ID=demo;Password=demo;Initial Catalog=test;Data Source=192.168.1.25;';
   helper.MSendAIDataFromDb(con1,'1231',imgids);
-
 end;
 
 end.

@@ -4,9 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient,
-  IdHTTP, IdCoder, IdCoder3to4, IdCoderMIME, IdMultipartFormData, IniFiles,
-  ADODB;
+  Dialogs, IdComponent, IdHTTP, IdCoder, IdCoderMIME, IdMultipartFormData, IniFiles,ADODB;
 
 type
   TTencentAIUploadImage = class
