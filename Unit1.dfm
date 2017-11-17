@@ -1,0 +1,80 @@
+object Form1: TForm1
+  Left = 248
+  Top = 309
+  Width = 969
+  Height = 654
+  Caption = 'Form1'
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Font.Style = []
+  OldCreateOrder = False
+  PixelsPerInch = 96
+  TextHeight = 13
+  object btn1: TButton
+    Left = 72
+    Top = 40
+    Width = 75
+    Height = 25
+    Caption = 'btn1'
+    TabOrder = 0
+    OnClick = btn1Click
+  end
+  object btn2: TButton
+    Left = 72
+    Top = 96
+    Width = 75
+    Height = 25
+    Caption = 'btn2'
+    TabOrder = 1
+    OnClick = btn2Click
+  end
+  object mmo1: TMemo
+    Left = 464
+    Top = 72
+    Width = 457
+    Height = 521
+    Lines.Strings = (
+      'mmo1')
+    ScrollBars = ssVertical
+    TabOrder = 2
+  end
+  object btn3: TButton
+    Left = 80
+    Top = 168
+    Width = 75
+    Height = 25
+    Caption = 'btn3'
+    TabOrder = 3
+    OnClick = btn3Click
+  end
+  object idhtp1: TIdHTTP
+    MaxLineAction = maException
+    ReadTimeout = 0
+    AllowCookies = True
+    ProxyParams.BasicAuthentication = False
+    ProxyParams.ProxyPort = 0
+    Request.ContentLength = -1
+    Request.ContentRangeEnd = 0
+    Request.ContentRangeStart = 0
+    Request.ContentType = 'text/html'
+    Request.Accept = 'text/html, */*'
+    Request.BasicAuthentication = False
+    Request.UserAgent = 'Mozilla/3.0 (compatible; Indy Library)'
+    HTTPOptions = [hoForceEncodeParams]
+    Left = 320
+    Top = 8
+  end
+  object idcdrm1: TIdDecoderMIME
+    FillChar = '='
+    Left = 240
+    Top = 16
+  end
+  object idncdrm1: TIdEncoderMIME
+    FillChar = '='
+    Left = 288
+    Top = 16
+  end
+end
