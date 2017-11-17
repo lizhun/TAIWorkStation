@@ -1,8 +1,8 @@
 object Form1: TForm1
   Left = 248
   Top = 309
-  Width = 969
-  Height = 654
+  Width = 917
+  Height = 445
   Caption = 'Form1'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -32,10 +32,10 @@ object Form1: TForm1
     OnClick = btn2Click
   end
   object mmo1: TMemo
-    Left = 464
-    Top = 72
-    Width = 457
-    Height = 521
+    Left = 216
+    Top = 56
+    Width = 657
+    Height = 329
     Lines.Strings = (
       'mmo1')
     ScrollBars = ssVertical
