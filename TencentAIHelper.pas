@@ -111,7 +111,9 @@ begin
   data := TTencentAIUploadData.Create;
   query := TADOQuery.Create(nil);
   query.Connection := con;
-  query.SQL.Text := 'select m.DbType,m.StudyId,m.StudyType, m.StudyDate,m.StudyName,m.PatientId,m.PatientName,' + 'm.PatientGender, m.PatientBirthday,i.imageId,i.imgfile from TB_TencentAIUpload m ' + 'inner join TB_TencentAIUploadDetail i on m.id=i.pid where m.id=:patid and i.id in (';
+  query.SQL.Text := 'select m.DbType,m.StudyId,m.StudyType, m.StudyDate,m.StudyName,m.PatientId,m.PatientName,' +
+  'm.PatientGender, m.PatientBirthday,i.imageId,i.imgfile from V_TencentAIUpload m ' +
+  'inner join V_TencentAIUploadDetail i on m.patid=i.pid where m.patid=:patid and i.imageid in (';
   len := Length(imageIds);
   for i := 0 to len - 1 do
   begin
@@ -139,18 +141,19 @@ begin
   data.StudyDate := query.FieldByName('StudyDate').AsDateTime;
   data.StudyName := query.FieldByName('StudyName').AsString;
   data.PatientId := query.FieldByName('PatientId').AsString;
-  data.PatientId := query.FieldByName('PatientId').AsString;
+  data.PatientName := query.FieldByName('PatientName').AsString;
   data.PatientGender := query.FieldByName('PatientGender').AsString;
   data.PatientBirthday := query.FieldByName('PatientBirthday').AsString;
   SetLength(data.Images, query.RecordCount);
   i := 0;
-  while not Eof do
+  while not query.Eof do
   begin
     data.Images[i] := MakeUploadImage(query.FieldByName('imageId').AsString, query.FieldByName('imgfile').AsString);
     i := i + 1;
     query.Next;
   end;
-
+  query.Close;
+  FreeAndNil(query);
   Result := data;
 end;
 

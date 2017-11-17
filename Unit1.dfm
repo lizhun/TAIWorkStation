@@ -42,13 +42,22 @@ object Form1: TForm1
     TabOrder = 2
   end
   object btn3: TButton
-    Left = 80
-    Top = 168
+    Left = 64
+    Top = 144
     Width = 75
     Height = 25
     Caption = 'btn3'
     TabOrder = 3
     OnClick = btn3Click
+  end
+  object btn4: TButton
+    Left = 56
+    Top = 192
+    Width = 75
+    Height = 25
+    Caption = 'btnFromDb'
+    TabOrder = 4
+    OnClick = btn4Click
   end
   object idhtp1: TIdHTTP
     MaxLineAction = maException
@@ -76,5 +85,10 @@ object Form1: TForm1
     FillChar = '='
     Left = 288
     Top = 16
+  end
+  object con1: TADOConnection
+    Provider = 'SQLNCLI11.1'
+    Left = 80
+    Top = 248
   end
 end
