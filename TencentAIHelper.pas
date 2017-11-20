@@ -27,7 +27,8 @@ type
 type
   TTencentAIUploadData = class
     DbType: string;   //这个是程序内部使用，如WJ CJ ZXJ XZJ
-    StudyId: string;
+    PatId:string;      
+    StudyId: string;  //这个是唯一ID，将由前置服务器自动生成
     StudyType: string;
     StudyDate: TDateTime;
     StudyName: string;
@@ -76,13 +77,14 @@ var
 begin
   postForm := TIdMultiPartFormDataStream.Create;
   http := TIdHTTP.Create(nil);
+
   postForm.AddFormField('StudyId', data.StudyId);
   postForm.AddFormField('StudyType', data.StudyType);
-  postForm.AddFormField('StudyName', data.StudyName);
+  postForm.AddFormField('StudyName',AnsiToUtf8( data.StudyName));
   postForm.AddFormField('PatientId', data.PatientId);
-  postForm.AddFormField('PatientName', data.PatientName);
+  postForm.AddFormField('PatientName', AnsiToUtf8(data.PatientName));
   postForm.AddFormField('PatientGender', data.PatientGender);
-  postForm.AddFormField('PatientBirthday', data.PatientBirthday);
+  postForm.AddFormField('PatientBirthday', AnsiToUtf8(data.PatientBirthday));
   postForm.AddFormField('StudyDate', FloatToStr(data.StudyDate));
   ilen := Length(data.Images);
   for i := 0 to ilen - 1 do

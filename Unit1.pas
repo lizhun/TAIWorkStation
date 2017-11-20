@@ -43,8 +43,15 @@ begin
   helper := TTencentAIManager.Create;
   helper.imgLocalRootPath := '';
   helper.imgServerRootPath := '';
+  data.DbType:='';
   data.StudyId := 'dfasdf';
-  data.StudyType := '\\192.1658.1.1\';
+  data.StudyType := '1';
+  data.StudyName:='气管镜';
+  data.PatientId :='1';
+  data.:='';
+  data.PatientName := '张三';
+  data.PatientGender := '1';
+  data.PatientBirthday :='1999-11-11 22:22:22';
   SetLength(data.Images, 1);
   data.Images[0] := helper.MakeUploadImage('1231', 'D:\110.png');
   helper.MSendAIData(data);
