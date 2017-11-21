@@ -4,7 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, IdComponent, IdHTTP, IdCoder, IdCoderMIME, IdMultipartFormData, IniFiles,ADODB;
+  Dialogs, IdComponent, IdHTTP, IdCoder, IdCoderMIME, IdMultipartFormData,
+  IniFiles, ADODB;
 
 type
   TTencentAIUploadImage = class
@@ -26,17 +27,17 @@ type
 
 type
   TTencentAIUploadData = class
-    DbType: string;   //这个是程序内部使用，如WJ CJ ZXJ XZJ
-    PatId:string;      
-    StudyId: string;  //这个是唯一ID，将由前置服务器自动生成
-    StudyType: string;
-    StudyDate: TDateTime;
-    StudyName: string;
-    PatientId: string;
-    PatientName: string;
-    PatientGender: string;
-    PatientBirthday: string;
-    Images: TArrayTTencentAIUploadImage;
+    DbType: string;                    //必填 这个是程序内部使用，如WJ CJ ZXJ XZJ
+    PatId: string;      
+   // StudyId: string;                 //必填 这个是唯一ID，将由前置服务器自动生成
+    StudyType: string;                 //必填 报告类型   1 食管癌 2 眼底 3肠镜 4 肺结节
+    StudyDate: string;                 //必填 报告日期 yyyy-mm-dd 如1988-11-11
+    StudyName: string;                 //必填 检查名称
+    PatientId: string;                 //必填 病人在医院对应的ID
+    PatientName: string;               //必填 病人姓名
+    PatientGender: string;             //必填 性别  0未知，1男，2女，3其它
+    PatientBirthday: string;           //必填 生日 yyyy-mm-dd 如1988-11-11
+    Images: TArrayTTencentAIUploadImage; //必填 图片信息  至少传一张
   end;
 
 type
@@ -51,6 +52,7 @@ type
     ImgServerRootPath: string;
     function MSendAIDataFromDb(con: TADOConnection; patId: string; imageIds: TArrayImageId): string;
     function MSendAIData(data: TTencentAIUploadData): string;
+    function GetAIResult(dbType: string; patId: string): string;
     property OnBeforeSend: TNotifyEvent read _OnBeforeSend write _OnBeforeSend;
     function MakeUploadImage(imageId: string; filePath: string): TTencentAIUploadImage;
   end;
@@ -59,12 +61,25 @@ implementation
 
 function TTencentAIManager.MSendAIDataFromDb(con: TADOConnection; patId: string; imageIds: TArrayImageId): string;
 var
-  aaa: string;
   data: TTencentAIUploadData;
   res: string;
 begin
   data := _GetAIDataFromDb(con, patId, imageIds);
   res := MSendAIData(data);
+  Result := res;
+end;
+
+function TTencentAIManager.GetAIResult(dbType: string; patId: string): string;
+var
+  postForm: TIdMultiPartFormDataStream;
+  http: TIdHTTP;
+  res: string;
+begin
+  postForm := TIdMultiPartFormDataStream.Create;
+  postForm.AddFormField('DbType', dbType);
+  postForm.AddFormField('PatId', patId);
+  http := TIdHTTP.Create(nil);
+  res := http.Post(_GetWebSVRUrl(GetAIResultUrl), postForm);
   Result := res;
 end;
 
@@ -78,14 +93,16 @@ begin
   postForm := TIdMultiPartFormDataStream.Create;
   http := TIdHTTP.Create(nil);
 
-  postForm.AddFormField('StudyId', data.StudyId);
+  postForm.AddFormField('DbType', data.DbType);
+  postForm.AddFormField('PatId', data.PatId);
+  //postForm.AddFormField('StudyId', data.StudyId);
   postForm.AddFormField('StudyType', data.StudyType);
-  postForm.AddFormField('StudyName',AnsiToUtf8( data.StudyName));
+  postForm.AddFormField('StudyName', AnsiToUtf8(data.StudyName));
   postForm.AddFormField('PatientId', data.PatientId);
   postForm.AddFormField('PatientName', AnsiToUtf8(data.PatientName));
   postForm.AddFormField('PatientGender', data.PatientGender);
   postForm.AddFormField('PatientBirthday', AnsiToUtf8(data.PatientBirthday));
-  postForm.AddFormField('StudyDate', FloatToStr(data.StudyDate));
+  postForm.AddFormField('StudyDate', data.StudyDate);
   ilen := Length(data.Images);
   for i := 0 to ilen - 1 do
   begin
@@ -111,9 +128,7 @@ begin
   data := TTencentAIUploadData.Create;
   query := TADOQuery.Create(nil);
   query.Connection := con;
-  query.SQL.Text := 'select m.DbType,m.StudyId,m.StudyType, m.StudyDate,m.StudyName,m.PatientId,m.PatientName,' +
-  'm.PatientGender, m.PatientBirthday,i.imageId,i.imgfile from V_TencentAIUpload m ' +
-  'inner join V_TencentAIUploadDetail i on m.patid=i.pid where m.patid=:patid and i.imageid in (';
+  query.SQL.Text := 'select m.DbType,m.StudyId,m.StudyType, m.StudyDate,m.StudyName,m.PatientId,m.PatientName,' + 'm.PatientGender, m.PatientBirthday,i.imageId,i.imgfile from V_TencentAIUpload m ' + 'inner join V_TencentAIUploadDetail i on m.patid=i.pid where m.patid=:patid and i.imageid in (';
   len := Length(imageIds);
   for i := 0 to len - 1 do
   begin
@@ -136,9 +151,9 @@ begin
   query.Open;
   query.First;
   data.DbType := query.FieldByName('DbType').AsString;
-  data.StudyId := query.FieldByName('StudyId').AsString;
+  //data.StudyId := query.FieldByName('StudyId').AsString;
   data.StudyType := query.FieldByName('StudyType').AsString;
-  data.StudyDate := query.FieldByName('StudyDate').AsDateTime;
+  data.StudyDate := query.FieldByName('StudyDate').AsString;
   data.StudyName := query.FieldByName('StudyName').AsString;
   data.PatientId := query.FieldByName('PatientId').AsString;
   data.PatientName := query.FieldByName('PatientName').AsString;

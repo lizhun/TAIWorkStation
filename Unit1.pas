@@ -43,15 +43,15 @@ begin
   helper := TTencentAIManager.Create;
   helper.imgLocalRootPath := '';
   helper.imgServerRootPath := '';
-  data.DbType:='';
-  data.StudyId := 'dfasdf';
+  data.DbType := 'WJ'; 
   data.StudyType := '1';
-  data.StudyName:='气管镜';
-  data.PatientId :='1';
-  data.:='';
+  data.StudyName := '气管镜';
+  data.PatientId := '1';
+  data.PatId := '111';
   data.PatientName := '张三';
   data.PatientGender := '1';
-  data.PatientBirthday :='1999-11-11 22:22:22';
+  data.PatientBirthday := '1999-11-11 22:22:22';
+  data.StudyDate := '1999-11-11';
   SetLength(data.Images, 1);
   data.Images[0] := helper.MakeUploadImage('1231', 'D:\110.png');
   helper.MSendAIData(data);
@@ -60,16 +60,15 @@ end;
 procedure TForm1.btn4Click(Sender: TObject);
 var
   helper: TTencentAIManager;
-
-  imgids:TArrayImageId;
+  imgids: TArrayImageId;
 begin
   helper := TTencentAIManager.Create;
   helper.imgLocalRootPath := '';
   helper.imgServerRootPath := '';
-  SetLength(imgids,1);
-  imgids[0]:='1';
-  con1.ConnectionString:='Provider=SQLNCLI11.1;User ID=demo;Password=demo;Initial Catalog=test;Data Source=192.168.1.25;';
-  helper.MSendAIDataFromDb(con1,'1231',imgids);
+  SetLength(imgids, 1);
+  imgids[0] := '1';
+  con1.ConnectionString := 'Provider=SQLNCLI11.1;User ID=demo;Password=demo;Initial Catalog=test;Data Source=192.168.1.25;';
+  helper.MSendAIDataFromDb(con1, '1231', imgids);
 end;
 
 end.
