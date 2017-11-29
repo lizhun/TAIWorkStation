@@ -46,13 +46,14 @@ type
     _OnBeforeSend: TNotifyEvent;
     function _GetWebSVRUrl(urlType: TencentAIFrontUrl): string;
     function _GetAIDataFromDb(con: TADOConnection; patId: string; imageIds: TArrayImageId): TTencentAIUploadData;
+    function _GetTencentAIUploadData(con: TADOConnection; patId: string): TTencentAIUploadData;
     function _ImageToBuffer(AImgFile: string): string;
   public
     ImgLocalRootPath: string;
     ImgServerRootPath: string;
     function MSendAIDataFromDb(con: TADOConnection; patId: string; imageIds: TArrayImageId): string;
     function MSendAIData(data: TTencentAIUploadData): string;
-    function GetAIResult(dbType: string; patId: string): string;
+    function MGetAIResult(con: TADOConnection; patId: string): string;
     property OnBeforeSend: TNotifyEvent read _OnBeforeSend write _OnBeforeSend;
     function MakeUploadImage(imageId: string; filePath: string): TTencentAIUploadImage;
   end;
@@ -69,15 +70,17 @@ begin
   Result := res;
 end;
 
-function TTencentAIManager.GetAIResult(dbType: string; patId: string): string;
+function TTencentAIManager.MGetAIResult(con: TADOConnection; patId: string): string;
 var
   postForm: TIdMultiPartFormDataStream;
   http: TIdHTTP;
   res: string;
+  data:TTencentAIUploadData;
 begin
   postForm := TIdMultiPartFormDataStream.Create;
-  postForm.AddFormField('DbType', dbType);
-  postForm.AddFormField('PatId', patId);
+  data := _GetTencentAIUploadData(con,patid);
+  postForm.AddFormField('DbType', data.DbType);
+  postForm.AddFormField('PatId', data.PatId);
   http := TIdHTTP.Create(nil);
   res := http.Post(_GetWebSVRUrl(GetAIResultUrl), postForm);
   Result := res;
@@ -119,6 +122,34 @@ begin
   Result := res;
 end;
 
+function TTencentAIManager._GetTencentAIUploadData(con: TADOConnection; patId: string ): TTencentAIUploadData;
+var
+  data: TTencentAIUploadData;
+  query: TADOQuery;
+  i, len: Integer;
+begin
+  data := TTencentAIUploadData.Create;
+  query := TADOQuery.Create(nil);
+  query.Connection := con;
+  query.SQL.Text := 'select m.DbType,m.PatId,m.StudyType, m.StudyDate,m.StudyName,m.PatientId,m.PatientName,' + 'm.PatientGender, m.PatientBirthday from V_TencentAIUpload m where m.PatId=:patid ';
+  query.Parameters.ParamByName('patid').value := patId;
+  query.Prepared := True;
+  query.Open;
+  query.First;
+  data.DbType := query.FieldByName('DbType').AsString;
+  data.PatId := query.FieldByName('PatId').AsString;
+  data.StudyType := query.FieldByName('StudyType').AsString;
+  data.StudyDate := query.FieldByName('StudyDate').AsString;
+  data.StudyName := query.FieldByName('StudyName').AsString;
+  data.PatientId := query.FieldByName('PatientId').AsString;
+  data.PatientName := query.FieldByName('PatientName').AsString;
+  data.PatientGender := query.FieldByName('PatientGender').AsString;
+  data.PatientBirthday := query.FieldByName('PatientBirthday').AsString;
+  query.Close;
+  FreeAndNil(query);
+  Result := data;
+end;
+
 function TTencentAIManager._GetAIDataFromDb(con: TADOConnection; patId: string; imageIds: TArrayImageId): TTencentAIUploadData;
 var
   data: TTencentAIUploadData;
@@ -128,7 +159,7 @@ begin
   data := TTencentAIUploadData.Create;
   query := TADOQuery.Create(nil);
   query.Connection := con;
-  query.SQL.Text := 'select m.DbType,m.StudyId,m.StudyType, m.StudyDate,m.StudyName,m.PatientId,m.PatientName,' + 'm.PatientGender, m.PatientBirthday,i.imageId,i.imgfile from V_TencentAIUpload m ' + 'inner join V_TencentAIUploadDetail i on m.patid=i.pid where m.patid=:patid and i.imageid in (';
+  query.SQL.Text := 'select m.DbType,m.PatId,m.StudyType, m.StudyDate,m.StudyName,m.PatientId,m.PatientName,' + 'm.PatientGender, m.PatientBirthday,i.imageId,i.imgfile from V_TencentAIUpload m ' + 'inner join V_TencentAIUploadDetail i on m.patid=i.pid where m.patid=:patid and i.imageid in (';
   len := Length(imageIds);
   for i := 0 to len - 1 do
   begin
@@ -151,7 +182,7 @@ begin
   query.Open;
   query.First;
   data.DbType := query.FieldByName('DbType').AsString;
-  //data.StudyId := query.FieldByName('StudyId').AsString;
+  data.PatId := query.FieldByName('PatId').AsString;
   data.StudyType := query.FieldByName('StudyType').AsString;
   data.StudyDate := query.FieldByName('StudyDate').AsString;
   data.StudyName := query.FieldByName('StudyName').AsString;
